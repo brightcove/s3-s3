@@ -9,22 +9,33 @@ var
     // create a mock AWS.Request object for testing
     var mockRequest = function(that){
       return {
+        /**
+         * Setup different on event types that we need to handle
+         */
         on: function (type, callback) {
+          var callbackFunc = function(response) {
+            callback(response || {});
+          };
           if (type === 'success') {
-            that.success = function (response) {
-              callback(response || {});
-            };
+            that.success = callbackFunc;
           } else if (type === 'error') {
-            that.fail = function (error) {
-              callback(error);
-            };
+            that.fail = callbackFunc;
+          } else if (type === 'retry') {
+            that.retry = callbackFunc;
           }
           return this;
         },
+
+        /**
+         * Pretend to send by calling the appropriate on() handler
+         */
         send: function(){
           that.calledSend = true;
           if (mockType.error) {
             that.fail();
+          }
+          else if (mockType.retry) {
+            that.retry();
           }
           else {
             that.success();
@@ -32,6 +43,8 @@ var
         }
       };
     };
+
+    // return the properties/functions needed for AWS.S3 and testing
     return {
       calledPut: false,
       calledSend: false,
@@ -76,6 +89,29 @@ describe('s3-s3', function(){
       assert.ok(! secondaryMock.calledPut);
       assert.ok(! secondaryMock.calledSend);
       done();
+    });
+    request.send();
+  });
+
+  it('should call retry after putObject send retry', function(done) {
+    var primaryMock = mockS3({retry: true }),
+      secondaryMock = mockS3(),
+      s3 = s3s3.init(primaryMock, secondaryMock),
+      request = s3.putObject();
+
+    assert.ok(request !== null);
+    request.on('success', function (response) {
+      throw new Error('this should not happen!');
+    });
+    request.on('retry', function (response) {
+      assert.ok(primaryMock.calledPut);
+      assert.ok(primaryMock.calledSend);
+      assert.ok(! secondaryMock.calledPut);
+      assert.ok(! secondaryMock.calledSend);
+      done();
+    });
+    request.on('error', function (response) {
+      throw new Error('this should not happen!');
     });
     request.send();
   });
