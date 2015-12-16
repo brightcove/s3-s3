@@ -1,0 +1,38 @@
+{
+  "name": "s3-s3",
+  "description": "AWS S3 client ",
+  "version": "0.0.1",
+  "main": "lib/s3-s3.js",
+  "author": "Brian Deitte",
+  "contributors": [
+    "Brian Deitte <bdeitte@brightcove.com>"
+  ],
+  "keywords": [
+    "aws",
+    "s3"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/brightcove/s3-s3.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brightcove/s3-s3/issues"
+  },
+  "directories": {
+    "lib": "./lib/"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha -R spec",
+    "lint": "jshint lib/**.js test/**.js",
+    "pretest": "npm run lint"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jshint": "2.x",
+    "mocha": "2.x"
+  },
+  "license": "MIT"
+}
