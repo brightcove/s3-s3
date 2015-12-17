@@ -1,6 +1,6 @@
 var
   assert = require('assert'),
-  s3s3 = require('../lib/s3-s3.js'),
+  S3S3 = require('../lib/s3-s3.js'),
 
   // create a mock AWS.S3 object for testing
   mockS3 = function(mockType) {
@@ -70,7 +70,7 @@ describe('s3-s3', function(){
   it('should call success after putObject send', function(done) {
     var primaryMock = mockS3(),
       secondaryMock = mockS3(),
-      s3 = s3s3.init(primaryMock, secondaryMock),
+      s3 = new S3S3(primaryMock, secondaryMock),
       request = s3.putObject();
 
     assert.ok(request !== null);
@@ -86,7 +86,7 @@ describe('s3-s3', function(){
   it('should call success after putObject send failure', function(done) {
     var primaryMock = mockS3({error: true }),
       secondaryMock = mockS3(),
-      s3 = s3s3.init(primaryMock, secondaryMock),
+      s3 = new S3S3(primaryMock, secondaryMock),
       request = s3.putObject();
 
     assert.ok(request !== null);
@@ -106,7 +106,7 @@ describe('s3-s3', function(){
   it('should call retry after putObject send retry', function(done) {
     var primaryMock = mockS3({retry: true }),
       secondaryMock = mockS3(),
-      s3 = s3s3.init(primaryMock, secondaryMock),
+      s3 = new S3S3(primaryMock, secondaryMock),
       request = s3.putObject();
 
     assert.ok(request !== null);
@@ -129,7 +129,7 @@ describe('s3-s3', function(){
   it('should call success after deleteObject send', function(done) {
     var primaryMock = mockS3(),
       secondaryMock = mockS3(),
-      s3 = s3s3.init(primaryMock, secondaryMock),
+      s3 = new S3S3(primaryMock, secondaryMock),
       request = s3.deleteObject();
 
     assert.ok(request !== null);
@@ -145,7 +145,7 @@ describe('s3-s3', function(){
   it('should call success after getObject send', function(done) {
     var primaryMock = mockS3(),
       secondaryMock = mockS3(),
-      s3 = s3s3.init(primaryMock, secondaryMock),
+      s3 = new S3S3(primaryMock, secondaryMock),
       request = s3.getObject();
 
     assert.ok(request !== null);
@@ -158,4 +158,15 @@ describe('s3-s3', function(){
     }).send();
   });
 
+  it('should fail if getObject given args', function(done) {
+    var primaryMock = mockS3(),
+      secondaryMock = mockS3(),
+      s3 = new S3S3(primaryMock, secondaryMock);
+    try {
+      var request = s3.getObject({});
+    }
+    catch(err) {
+      done();
+    }
+  });
 });
