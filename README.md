@@ -1,6 +1,6 @@
-# s3-s3
+# (in progress, don't use yet!)
 
-(in progress, don't use yet!)
+# s3-s3
 
 A Node.js library for S3 redunancy, for use with S3 replication.  Normally, calls with this library will be sent to the primary S3 location.  If there are any unexpected issues with an S3 call, however, it will use a secondary, failover S3 location.  While two locations are used under the covers, the library tries to look just like the normal AWS SDK object for easy use.
 
