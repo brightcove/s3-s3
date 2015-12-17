@@ -47,10 +47,20 @@ var
     // return the properties/functions needed for AWS.S3 and testing
     return {
       calledPut: false,
+      calledDelete: false,
+      calledGet: false,
       calledSend: false,
       params: {},
       putObject: function(){
         this.calledPut = true;
+        return mockRequest(this);
+      },
+      deleteObject: function(){
+        this.calledDelete = true;
+        return mockRequest(this);
+      },
+      getObject: function(){
+        this.calledGet = true;
         return mockRequest(this);
       }
     };
@@ -114,6 +124,38 @@ describe('s3-s3', function(){
       throw new Error('this should not happen!');
     });
     request.send();
+  });
+
+  it('should call success after deleteObject send', function(done) {
+    var primaryMock = mockS3(),
+      secondaryMock = mockS3(),
+      s3 = s3s3.init(primaryMock, secondaryMock),
+      request = s3.deleteObject();
+
+    assert.ok(request !== null);
+    request.on('success', function (response) {
+      assert.ok(primaryMock.calledDelete);
+      assert.ok(primaryMock.calledSend);
+      assert.ok(! secondaryMock.calledDelete);
+      assert.ok(! secondaryMock.calledSend);
+      done();
+    }).send();
+  });
+
+  it('should call success after getObject send', function(done) {
+    var primaryMock = mockS3(),
+      secondaryMock = mockS3(),
+      s3 = s3s3.init(primaryMock, secondaryMock),
+      request = s3.getObject();
+
+    assert.ok(request !== null);
+    request.on('success', function (response) {
+      assert.ok(primaryMock.calledGet);
+      assert.ok(primaryMock.calledSend);
+      assert.ok(! secondaryMock.calledGet);
+      assert.ok(! secondaryMock.calledSend);
+      done();
+    }).send();
   });
 
 });
