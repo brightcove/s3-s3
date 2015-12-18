@@ -34,6 +34,10 @@ var
           if (mockType.error) {
             that.fail();
           }
+          else if (mockType.error500) {
+            var error = { code: 500 };
+            that.fail(error);
+          }
           else if (mockType.retry) {
             that.retry();
           }
@@ -112,18 +116,19 @@ describe('s3-s3', function(){
     assert.ok(request !== null);
     request.on('success', function (response) {
       throw new Error('this should not happen!');
-    });
-    request.on('retry', function (response) {
+    })
+    // we also chain calls in here to test that out
+    .on('retry', function (response) {
       assert.ok(primaryMock.calledPut);
       assert.ok(primaryMock.calledSend);
       assert.ok(! secondaryMock.calledPut);
       assert.ok(! secondaryMock.calledSend);
       done();
-    });
-    request.on('error', function (response) {
+    })
+    .on('error', function (response) {
       throw new Error('this should not happen!');
-    });
-    request.send();
+    })
+    .send();
   });
 
   it('should call success after deleteObject send', function(done) {
@@ -169,4 +174,71 @@ describe('s3-s3', function(){
       done();
     }
   });
+
+  it('should failover to secondary after deleteObject send issues', function(done) {
+    var primaryMock = mockS3({error500: true }),
+      secondaryMock = mockS3(),
+      s3 = new S3S3(primaryMock, secondaryMock),
+      request = s3.deleteObject(),
+      calledFailover = false;
+
+    assert.ok(request !== null);
+    request.on('success', function (response) {
+      assert.ok(calledFailover);
+      assert.ok(primaryMock.calledDelete);
+      assert.ok(primaryMock.calledSend);
+      assert.ok(secondaryMock.calledDelete);
+      assert.ok(secondaryMock.calledSend);
+      done();
+    });
+    request.on('failover', function (response) {
+      calledFailover = true;
+    });
+    request.on('retry', function (response) {
+      throw new Error('this should not happen!');
+    });
+    request.on('error', function (response) {
+      throw new Error('this should not happen!');
+    });
+    request.send();
+  });
+
+  it('should error after deleteObject send issues with primary and secondary', function(done) {
+    var primaryMock = mockS3({error500: true }),
+      secondaryMock = mockS3({error500: true }),
+      s3 = new S3S3(primaryMock, secondaryMock),
+      request = s3.deleteObject();
+
+    assert.ok(request !== null);
+    request.on('success', function (response) {
+      throw new Error('this should not happen!');
+    });
+    request.on('retry', function (response) {
+      throw new Error('this should not happen!');
+    });
+    request.on('error', function (response) {
+      assert.ok(primaryMock.calledDelete);
+      assert.ok(primaryMock.calledSend);
+      assert.ok(secondaryMock.calledDelete);
+      assert.ok(secondaryMock.calledSend);
+      done();
+    });
+    request.send();
+  });
+
+  it('should error when an unknown on type is used', function(done) {
+    var primaryMock = mockS3(),
+      secondaryMock = mockS3(),
+      s3 = new S3S3(primaryMock, secondaryMock),
+      request = s3.deleteObject();
+
+    try {
+      request.on('whatisthiscraziness', function (response) {
+      });
+    }
+    catch (err) {
+      done();
+    }
+  });
+
 });
