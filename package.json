@@ -1,7 +1,7 @@
 {
   "name": "s3-s3",
   "description": "AWS S3 client ",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "lib/s3-s3.js",
   "author": "Brian Deitte",
   "contributors": [
