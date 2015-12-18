@@ -52,6 +52,8 @@ var
     return {
       calledPut: false,
       calledDelete: false,
+      calledDeletes: false,
+      calledList: false,
       calledGet: false,
       calledSend: false,
       params: {},
@@ -61,6 +63,14 @@ var
       },
       deleteObject: function(){
         this.calledDelete = true;
+        return mockRequest(this);
+      },
+      deleteObjects: function(){
+        this.calledDeletes = true;
+        return mockRequest(this);
+      },
+      listObjects: function(){
+        this.calledList = true;
         return mockRequest(this);
       },
       getObject: function(){
@@ -142,6 +152,38 @@ describe('s3-s3', function(){
       assert.ok(primaryMock.calledDelete);
       assert.ok(primaryMock.calledSend);
       assert.ok(! secondaryMock.calledDelete);
+      assert.ok(! secondaryMock.calledSend);
+      done();
+    }).send();
+  });
+
+  it('should call success after deleteObjects send', function(done) {
+    var primaryMock = mockS3(),
+      secondaryMock = mockS3(),
+      s3 = new S3S3(primaryMock, secondaryMock),
+      request = s3.deleteObjects();
+
+    assert.ok(request !== null);
+    request.on('success', function (response) {
+      assert.ok(primaryMock.calledDeletes);
+      assert.ok(primaryMock.calledSend);
+      assert.ok(! secondaryMock.calledDeletes);
+      assert.ok(! secondaryMock.calledSend);
+      done();
+    }).send();
+  });
+
+  it('should call success after listObjects send', function(done) {
+    var primaryMock = mockS3(),
+      secondaryMock = mockS3(),
+      s3 = new S3S3(primaryMock, secondaryMock),
+      request = s3.listObjects();
+
+    assert.ok(request !== null);
+    request.on('success', function (response) {
+      assert.ok(primaryMock.calledList);
+      assert.ok(primaryMock.calledSend);
+      assert.ok(! secondaryMock.calledList);
       assert.ok(! secondaryMock.calledSend);
       done();
     }).send();
