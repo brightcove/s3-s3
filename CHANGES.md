@@ -2,10 +2,14 @@ CHANGELOG
 =========
 
 ## HEAD (Unreleased)
-* @bdeitte Initial something or other
+* @bdeitte More docs
 
 --------------------
 
-## 1.0.0 (date)
+## 1.1.0 (12-17-2015)
 
-* fill in shortly
+* @bdeitte Add in getObjects and listObjects to supported functions
+
+## 1.0.0 (12-17-2015)
+
+* @bdeitte Initial implementation
