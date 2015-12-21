@@ -85,7 +85,7 @@ describe('s3-s3', function() {
     it('should call success after putObject send', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.putObject();
 
       assert.ok(request !== null);
@@ -101,7 +101,7 @@ describe('s3-s3', function() {
     it('should call success after deleteObject send', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.deleteObject();
 
       assert.ok(request !== null);
@@ -117,7 +117,7 @@ describe('s3-s3', function() {
     it('should call success after deleteObjects send', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.deleteObjects();
 
       assert.ok(request !== null);
@@ -133,7 +133,7 @@ describe('s3-s3', function() {
     it('should call success after listObjects send', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.listObjects();
 
       assert.ok(request !== null);
@@ -149,7 +149,7 @@ describe('s3-s3', function() {
     it('should call success after getObject send', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.getObject();
 
       assert.ok(request !== null);
@@ -165,7 +165,7 @@ describe('s3-s3', function() {
     it('should call error after putObject send failure', function(done) {
       var primaryMock = mockS3({error: true }),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.putObject();
 
       assert.ok(request !== null);
@@ -185,7 +185,7 @@ describe('s3-s3', function() {
     it('should call retry after putObject send retry', function(done) {
       var primaryMock = mockS3({retry: true }),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.putObject();
 
       assert.ok(request !== null);
@@ -211,7 +211,7 @@ describe('s3-s3', function() {
     it('should fail if getObject given args', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock);
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2');
       try {
         var request = s3.getObject({});
       }
@@ -219,10 +219,11 @@ describe('s3-s3', function() {
         done();
       }
     });
+
     it('should error when an unknown on type is used', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.deleteObject();
 
       try {
@@ -233,10 +234,11 @@ describe('s3-s3', function() {
         done();
       }
     });
-    it('should error when a Bucket paraaeter is used', function(done) {
+
+    it('should error when a Bucket parameter is used', function(done) {
       var primaryMock = mockS3(),
         secondaryMock = mockS3(),
-        s3 = new S3S3(primaryMock, secondaryMock),
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
         request = s3.deleteObject();
         request.params = { Bucket: 'bucket' };
 
@@ -247,13 +249,27 @@ describe('s3-s3', function() {
         done();
       }
     });
+
+    it('should error when not all parameters are given', function(done) {
+      var primaryMock = mockS3(),
+        secondaryMock = mockS3(),
+        s3;
+
+      try {
+        s3 = new S3S3(primaryMock, 'bucket1', secondaryMock);
+      }
+      catch (err) {
+        done();
+      }
+    });
+
   });
 
   describe('failover', function() {
     it('should failover to secondary after deleteObject send issues', function(done) {
         var primaryMock = mockS3({error500: true }),
           secondaryMock = mockS3(),
-          s3 = new S3S3(primaryMock, secondaryMock),
+          s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
           request = s3.deleteObject(),
           calledFailover = false;
 
@@ -281,7 +297,7 @@ describe('s3-s3', function() {
       it('should error after deleteObject send issues with primary and secondary', function(done) {
         var primaryMock = mockS3({error500: true }),
           secondaryMock = mockS3({error500: true }),
-          s3 = new S3S3(primaryMock, secondaryMock),
+          s3 = new S3S3(primaryMock, 'bucket1', secondaryMock, 'bucket2'),
           request = s3.deleteObject();
 
         assert.ok(request !== null);

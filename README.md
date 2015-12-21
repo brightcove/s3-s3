@@ -15,7 +15,7 @@ This library tries to look like a subset of the API from [AWS.S3](http://docs.aw
 Before using this library, you should have two buckets set up for cross-region replication.  They need to be both replicating to each other.  See [Amazon's guide for setup](http://docs.aws.amazon.com/AmazonS3/latest/dev/crr-how-setup.html).  A few additional tips on setup:
 - don't forget to turn on versioning for both buckets
 - once you have gone through the replication steps, remember to go back to setting up the second bucket for replication as well
-- if you are starting with one bucket that arleady has data, make sure to use the AWS SDK for an initial copy of files from one bucket to another
+- if you are starting with one bucket that already has data, make sure to use the AWS SDK for an initial copy of files from one bucket to another
 
 Once you have two buckets to use, you can set up s3-s3 in your code by first setting up the two buckets using [aws-sdk](https://aws.amazon.com/sdk-for-node-js/) in the normal way you would set them up.  Something like:
 
@@ -31,12 +31,10 @@ Once you have two buckets to use, you can set up s3-s3 in your code by first set
     s3Secondary = new AWS.S3(awsSecondaryConfig);
 ```
 
-Make sure the configurations used above contain a bucket.  Sometimes this is specified later, in params, but for this library it must be specified up front.
-
 With the above, you can then set up the s3-s3 object:
 ```
   var S3S3 = require('s3-s3'),
-    s3 = new S3S3(s3Primary, s3Secondary);
+    s3 = new S3S3(s3Primary, primaryBucketName, s3Secondary, secondaryBucketName);
 ```
 
 You can then use s3 to make many of the same calls that you would make with AWS.S3:
@@ -60,7 +58,10 @@ You can then use s3 to make many of the same calls that you would make with AWS.
   }).send();
 ```
 
-Two things to note about the example above.  The first is that using the request object returned from an API call is required with this library.  AWS.S3 also allows you to pass in parameters to putObject above, and that is not a current feature of this library.  The second thing to note is the failover event used above- this is the one addition to the normal event list returned from AWS.S3.  It is used to indicate that a failover to the secondary location is being attempted due to issues communicating with the primary location.
+A few things to note about the example above:
+1. Using the request object returned from an API call is required with this library.  AWS.S3 also allows you to pass in parameters to putObject above, and that is not a current feature of this library.
+2. 'Bucket' is usually given in request.params.  This can not be done using this library.  You always specify the buckets when initializing s3-s3.
+3. The failover event used above is the one addition to the normal event list returned from AWS.S3.  It is used to indicate that a failover to the secondary location is being attempted due to issues communicating with the primary location.
 
 ## APIs
 
@@ -68,7 +69,7 @@ New s3-s3 object:
 
 ```
   var S3S3 = require('s3-s3'),
-    s3 = new S3S3(s3Primary, s3Secondary);
+    s3 = new S3S3(new AWS.S3(awsConfig), primaryBucketName, new AWS.S3(secondaryConfig), secondaryBucketName);
 ```
 
 S3 APIs:
