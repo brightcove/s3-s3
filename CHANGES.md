@@ -5,6 +5,10 @@ CHANGELOG
 
 --------------------
 
+## 1.1.2 (12-21-2015)
+
+* @bdeitte Fix up Buckets usage, which was not working quite right until now.
+
 ## 1.1.1 (12-21-2015)
 
 * @bdeitte More docs
