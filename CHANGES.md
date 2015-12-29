@@ -5,7 +5,12 @@ CHANGELOG
 
 --------------------
 
-## 1.1.2 (12-26-2015)
+## 1.2.0 (12-29-2015)
+
+* @bdeitte Switch failover check from error.code to the correct error.statusCode.
+* @bdeitte Update docs to remove not-ready-for-primetime note.  Still testing, but initial test by @sahlas all good now.
+
+## 1.1.3 (12-26-2015)
 
 * @bdeitte Fix error that occurred during failover due to copying params.
 

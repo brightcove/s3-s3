@@ -1,7 +1,5 @@
 # s3-s3
 
-**This library still needs to be tested out at Brightcove.  Until we've done that Toxy proxy testing, use at your own risk!  (Or rather, use at your own risk even more than usual.)**
-
 A Node.js library for S3 redunancy, making sure your calls to S3 keep working even if there is an issue with one S3 location.  This library is intended to be used with two buckets set up with [cross-region replication](http://docs.aws.amazon.com/AmazonS3/latest/dev/crr.html).
 
 This library tries to look like a subset of the API from [AWS.S3](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html) for easy use.  Normally, calls with this library will be sent to the primary S3 location.  If there are any unexpected issues with an S3 call, however, it will use a secondary, failover S3 location.
@@ -52,7 +50,8 @@ You can then use s3 to make many of the same calls that you would make with AWS.
   }).on('error', function (err, response) {
     console.log('error!');
     callback(err);
-  }).on('failover', function (response) {
+  }).on('failover', function (err) {
+    // if you are streaming data in a Body param, you may need to reset this value on request.params here
     console.log('failover!');
     // no callback, as we will still get an error or success
   }).send();
