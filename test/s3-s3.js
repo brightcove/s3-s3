@@ -35,7 +35,7 @@ var
             that.fail();
           }
           else if (mockType.error500) {
-            var error = { code: 500 };
+            var error = { statusCode: 500 };
             that.fail(error);
           }
           else if (mockType.retry) {
