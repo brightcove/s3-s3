@@ -5,6 +5,10 @@ CHANGELOG
 
 --------------------
 
+## 1.2.1 (12-29-2015)
+
+* @bdeitte Add httpData and httpDone to types
+
 ## 1.2.0 (12-29-2015)
 
 * @bdeitte Switch failover check from error.code to the correct error.statusCode.
