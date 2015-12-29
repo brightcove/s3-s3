@@ -58,6 +58,7 @@ You can then use s3 to make many of the same calls that you would make with AWS.
 ```
 
 A few things to note about the example above:
+
 1. Using the request object returned from an API call is required with this library.  AWS.S3 also allows you to pass in parameters to putObject above, and that is not a current feature of this library.
 2. 'Bucket' is usually given in request.params.  This can not be done using this library.  You always specify the buckets when initializing s3-s3.
 3. The failover event used above is the one addition to the normal event list returned from AWS.S3.  It is used to indicate that a failover to the secondary location is being attempted due to issues communicating with the primary location.
