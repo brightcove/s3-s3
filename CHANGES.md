@@ -5,6 +5,11 @@ CHANGELOG
 
 --------------------
 
+## 1.3.0 (1-14-2015)
+
+* @bdeitte Remove httpDone, as it does not work well with failover
+* @bdeitte Substantial doc updates based on testing
+
 ## 1.2.1 (12-29-2015)
 
 * @bdeitte Add httpData and httpDone to types
