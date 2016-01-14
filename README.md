@@ -77,7 +77,7 @@ Whenever you have a stream as part of your parameters, as the Body or elsewhere,
       // just pretend doing this makes sense
       var getFile = child_process.spawn('cat', ['myfile.txt']);
       return getFile.stdout;
-    }
+    };
   request.params = {
     'Key': key
     'Body' : setupBody();
