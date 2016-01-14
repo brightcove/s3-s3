@@ -11,9 +11,9 @@ This library tries to look like a subset of the API from [AWS.S3](http://docs.aw
 ## Usage
 
 Before using this library, you should have two buckets set up for cross-region replication.  They need to be both replicating to each other.  See [Amazon's guide for setup](http://docs.aws.amazon.com/AmazonS3/latest/dev/crr-how-setup.html).  A few additional tips on setup:
-- don't forget to turn on versioning for both buckets
-- once you have gone through the replication steps, remember to go back to setting up the second bucket for replication as well
-- if you are starting with one bucket that already has data, make sure to use the AWS SDK for an initial copy of files from one bucket to another
+- Don't forget to turn on versioning for both buckets
+- Once you have gone through the replication steps, remember to go back to setting up the second bucket for replication as well
+- If you are starting with one bucket that already has data, make sure to use the AWS SDK for an initial copy of files from one bucket to another
 
 Once you have two buckets to use, you can set up s3-s3 in your code by first setting up the two buckets using [aws-sdk](https://aws.amazon.com/sdk-for-node-js/) in the normal way you would set them up.  Something like:
 
@@ -51,17 +51,51 @@ You can then use s3 to make many of the same calls that you would make with AWS.
     console.log('error!');
     callback(err);
   }).on('failover', function (err) {
-    // if you are streaming data in a Body param, you may need to reset this value on request.params here
+    // if you are streaming data in a Body param, you will need to reinitialize
+    // request.params.Body here for it to work properly in failover
     console.log('failover!');
     // no callback, as we will still get an error or success
   }).send();
 ```
 
-A few things to note about the example above:
+## Differences from AWS.S3
 
-1. Using the request object returned from an API call is required with this library.  AWS.S3 also allows you to pass in parameters to putObject above, and that is not a current feature of this library.
+While the API attempts to mimic AWS.S3, it's not exactly the same.  Some differences:
+
+1. Using the request object returned from an API call is required with this library.  AWS.S3 also allows you to pass in parameters to putObject/getObject/etc, and that is not a current feature of this library.
 2. 'Bucket' is usually given in request.params.  This can not be done using this library.  You always specify the buckets when initializing s3-s3.
-3. The failover event used above is the one addition to the normal event list returned from AWS.S3.  It is used to indicate that a failover to the secondary location is being attempted due to issues communicating with the primary location.
+3. Not all methods and events are implemented.  You're welcome to create a PR to add more support.
+4. The failover event used above is the one addition to the normal event list returned from AWS.S3.  It is used to indicate that a failover to the secondary location is being attempted due to issues communicating with the primary location.
+
+## Usage with Streams
+
+Whenever you have a stream as part of your parameters, as the Body or elsewhere, you need to make sure this stream is reinitialized in failover for this to work properly.  For example:
+
+```
+  var request = s3.putObject(),
+    setupBody = function () {
+      // just pretend doing this makes sense
+      var getFile = child_process.spawn('cat', ['myfile.txt']);
+      return getFile.stdout;
+    }
+  request.params = {
+    'Key': key
+    'Body' : setupBody();
+    'ACL' : 'public-read'
+  };
+  request.on('success', function (response) {
+    console.log('success!');
+    callback();
+  }).on('error', function (err, response) {
+    console.log('error!');
+    callback(err);
+  }).on('failover', function (err) {
+    // reinitialize Body as needed during failover
+    request.params.Body = setupBody();
+    console.log('failover!');
+    // no callback, as we will still get an error or success
+  }).send();
+```
 
 ## APIs
 
@@ -82,22 +116,19 @@ request = s3.listObjects();
 request = s3.getObject();
 ```
 
-Some of the usual S3 APIs are not supported above, simply because the creators of this project didn't need them.  You're welcome to create a PR to add more support.
-
 request events and send:
 ```
-request.on('send', function() {})
-       .on('retry', function() {})
-       .on('extractError', function() {})
-       .on('extractData', function() {})
-       .on('success', function() {})
-       .on('complete', function() {})
-       .on('error', function() {})
-       .on('failover', function() {})
+request.on('send', function(response) {})
+       .on('retry', function(response) {})
+       .on('extractError', function(response) {})
+       .on('extractData', function(response) {})
+       .on('success', function(response) {})
+       .on('httpData', function(chunk, response) {})
+       .on('complete', function(response) {})
+       .on('error', function(error, response) {})
+       .on('failover', function(error) {})
        .send();
 ```
-
-Some of the usual S3.Request events are not supported above, simply because the creators of this project didn't need them.  You're welcome to create a PR to add more support.
 
 ## Submitting changes
 
