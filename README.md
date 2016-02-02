@@ -89,7 +89,7 @@ Whenever you have a stream as part of your parameters, as the Body or elsewhere,
   }).on('error', function (err, response) {
     console.log('error!');
     callback(err);
-  }).on('failover', function (err) {
+  }).on('failover', function (err, response) {
     // reinitialize Body as needed during failover
     request.params.Body = setupBody();
     console.log('failover!');
@@ -126,7 +126,7 @@ request.on('send', function(response) {})
        .on('httpData', function(chunk, response) {})
        .on('complete', function(response) {})
        .on('error', function(error, response) {})
-       .on('failover', function(error) {})
+       .on('failover', function(error, response) {})
        .send();
 ```
 

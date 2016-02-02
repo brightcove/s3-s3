@@ -5,6 +5,10 @@ CHANGELOG
 
 --------------------
 
+## 1.4.0 (2-1-2015)
+
+* @bdeitte Add response parameter to error and failover callbacks
+
 ## 1.3.0 (1-14-2015)
 
 * @bdeitte Remove httpDone, as it does not work well with failover
