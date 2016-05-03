@@ -1,9 +1,10 @@
 {
   "name": "s3-s3",
-  "description": "AWS S3 client ",
+  "description": "AWS S3 client for redunancy",
   "version": "1.4.0",
   "main": "lib/s3-s3.js",
   "author": "Brian Deitte",
+  "reveal": "true",
   "contributors": [
     "Brian Deitte <bdeitte@brightcove.com>"
   ],
